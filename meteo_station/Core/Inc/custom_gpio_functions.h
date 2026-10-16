@@ -11,7 +11,7 @@ void init_gpio(GPIO_TypeDef *GPIO_p)
 {
     GPIO_p->CRL   = 0x44444444;
     GPIO_p->CRH   = 0x44444444;
-    GPIO_p->IDR   = 0;
+    // GPIO_p->IDR   = 0;
     GPIO_p->ODR   = 0;
     GPIO_p->BSRR  = 0;
     GPIO_p->BRR   = 0;

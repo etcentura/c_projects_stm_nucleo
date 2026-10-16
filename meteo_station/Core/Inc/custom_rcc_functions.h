@@ -4,7 +4,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /**
-  * @brief Reset all the fields of the GPIO register to init state
+  * @brief Reset all the fields of the RCC register to init state
   * @retval None
   */
 void init_rcc(RCC_TypeDef *RCC_p)
