@@ -6,15 +6,15 @@
   * @brief Reset all the fields of the USART register to init state
   * @retval None
   */
-void init_i2c(USART_TypeDef *USART_p)
+void init_USART(USART_TypeDef *USART_p)
 {
-    USART_p->SR     =   0;  
-    USART_p->DR     =   0;  
-    USART_p->BRR    =   0; 
-    USART_p->CR1    =   0; 
-    USART_p->CR2    =   0; 
-    USART_p->CR3    =   0; 
-    USART_p->GTPR   =   0;
+    USART_p->SR     =   0x000000C0;  
+    USART_p->DR     =   0x00000000;  
+    USART_p->BRR    =   0x00000000; 
+    USART_p->CR1    =   0x00000000; 
+    USART_p->CR2    =   0x00000000; 
+    USART_p->CR3    =   0x00000000; 
+    USART_p->GTPR   =   0x00000000;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 

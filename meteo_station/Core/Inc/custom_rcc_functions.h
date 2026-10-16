@@ -6,7 +6,7 @@
   * @brief Reset all the fields of the RCC register to init state
   * @retval None
   */
-void init_rcc(RCC_TypeDef *RCC_p)
+void init_RCC(RCC_TypeDef *RCC_p)
 {
     RCC_p->CR         = 0x00000083;
     RCC_p->CFGR       = 0x00000000;

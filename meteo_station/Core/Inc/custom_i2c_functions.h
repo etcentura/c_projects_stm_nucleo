@@ -6,17 +6,17 @@
   * @brief Reset all the fields of the I2C register to init state
   * @retval None
   */
-void init_i2c(I2C_TypeDef *I2C_p)
+void init_I2C(I2C_TypeDef *I2C_p)
 {
-  I2C_p->CR1    = 0;
-  I2C_p->CR2    = 0;
-  I2C_p->OAR1   = 0;
-  I2C_p->OAR2   = 0;
-  I2C_p->DR     = 0;
-  I2C_p->SR1    = 0;
-  // I2C_p->SR2    = 0;
-  I2C_p->CCR    = 0;
-  I2C_p->TRISE  = 0;
+  I2C_p->CR1    = 0x00000000;
+  I2C_p->CR2    = 0x00000000;
+  I2C_p->OAR1   = 0x00000000;
+  I2C_p->OAR2   = 0x00000000;
+  I2C_p->DR     = 0x00000000;
+  I2C_p->SR1    = 0x00000000;
+  I2C_p->SR2    = 0x00000000;
+  I2C_p->CCR    = 0x00000000;
+  I2C_p->TRISE  = 0x00000002;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 

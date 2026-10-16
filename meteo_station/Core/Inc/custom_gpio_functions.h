@@ -6,15 +6,15 @@
   * @brief Reset all the fields of the GPIO register to init state
   * @retval None
   */
-void init_gpio(GPIO_TypeDef *GPIO_p)
+void init_GPIO(GPIO_TypeDef *GPIO_p)
 {
     GPIO_p->CRL   = 0x44444444;
     GPIO_p->CRH   = 0x44444444;
-    // GPIO_p->IDR   = 0;
-    GPIO_p->ODR   = 0;
-    GPIO_p->BSRR  = 0;
-    GPIO_p->BRR   = 0;
-    GPIO_p->LCKR  = 0;
+    GPIO_p->IDR   = 0x00000000;
+    GPIO_p->ODR   = 0x00000000;
+    GPIO_p->BSRR  = 0x00000000;
+    GPIO_p->BRR   = 0x00000000;
+    GPIO_p->LCKR  = 0x00000000;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
