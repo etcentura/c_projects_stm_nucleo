@@ -1,5 +1,4 @@
 #include "stm32f103xb.h"
-#include "custom_data_types.h"
 // Look at line 907 at stm32f103xb.h
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -46,9 +45,9 @@ int get_RCC_CR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear RCC CR register field
   * @retval None
   */
-void clear_RCC_CR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
+void clear_RCC_CR_field(RCC_TypeDef *RCC_p, unsigned int msk)
 {
-    RCC_p->CR &= ~(msk << pos);
+    RCC_p->CR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -76,9 +75,9 @@ int get_RCC_CFGR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear RCC CFGR register field
   * @retval None
   */
-void clear_RCC_CFGR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
+void clear_RCC_CFGR_field(RCC_TypeDef *RCC_p, unsigned int msk)
 {
-    RCC_p->CFGR &= ~(msk << pos);
+    RCC_p->CFGR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -106,9 +105,9 @@ int get_RCC_CIR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear RCC CIR register field
   * @retval None
   */
-void clear_RCC_CIR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
+void clear_RCC_CIR_field(RCC_TypeDef *RCC_p, unsigned int msk)
 {
-    RCC_p->CIR &= ~(msk << pos);
+    RCC_p->CIR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -136,9 +135,9 @@ int get_RCC_APB2RSTR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int ms
   * @brief Common fuction to clear RCC APB2RSTR register field
   * @retval None
   */
-void clear_RCC_APB2RSTR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
+void clear_RCC_APB2RSTR_field(RCC_TypeDef *RCC_p, unsigned int msk)
 {
-    RCC_p->APB2RSTR &= ~(msk << pos);
+    RCC_p->APB2RSTR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -166,9 +165,9 @@ int get_RCC_APB1RSTR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int ms
   * @brief Common fuction to clear RCC APB1RSTR register field
   * @retval None
   */
-void clear_RCC_APB1RSTR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
+void clear_RCC_APB1RSTR_field(RCC_TypeDef *RCC_p, unsigned int msk)
 {
-    RCC_p->APB1RSTR &= ~(msk << pos);
+    RCC_p->APB1RSTR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -196,9 +195,9 @@ int get_RCC_AHBENR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear RCC AHBENR register field
   * @retval None
   */
-void clear_RCC_AHBENR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
+void clear_RCC_AHBENR_field(RCC_TypeDef *RCC_p, unsigned int msk)
 {
-    RCC_p->AHBENR &= ~(msk << pos);
+    RCC_p->AHBENR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -226,9 +225,9 @@ int get_RCC_APB2ENR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk
   * @brief Common fuction to clear RCC APB2ENR register field
   * @retval None
   */
-void clear_RCC_APB2ENR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
+void clear_RCC_APB2ENR_field(RCC_TypeDef *RCC_p, unsigned int msk)
 {
-    RCC_p->APB2ENR &= ~(msk << pos);
+    RCC_p->APB2ENR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -256,9 +255,9 @@ int get_RCC_APB1ENR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk
   * @brief Common fuction to clear RCC APB1ENR register field
   * @retval None
   */
-void clear_RCC_APB1ENR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
+void clear_RCC_APB1ENR_field(RCC_TypeDef *RCC_p, unsigned int msk)
 {
-    RCC_p->APB1ENR &= ~(msk << pos);
+    RCC_p->APB1ENR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -286,9 +285,9 @@ int get_RCC_BDCR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear RCC BDCR register field
   * @retval None
   */
-void clear_RCC_BDCR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
+void clear_RCC_BDCR_field(RCC_TypeDef *RCC_p, unsigned int msk)
 {
-    RCC_p->BDCR &= ~(msk << pos);
+    RCC_p->BDCR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -316,8 +315,8 @@ int get_RCC_CSR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear RCC CSR register field
   * @retval None
   */
-void clear_RCC_CSR_field(RCC_TypeDef *RCC_p, unsigned int pos, unsigned int msk)
+void clear_RCC_CSR_field(RCC_TypeDef *RCC_p, unsigned int msk)
 {
-    RCC_p->CSR &= ~(msk << pos);
+    RCC_p->CSR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////

@@ -1,13 +1,12 @@
 #include "stm32f103xb.h"
-#include "custom_data_types.h"
-// Look at line 907 at stm32f103xb.h
+// Look at line 384 at stm32f103xb.h
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /**
   * @brief Reset all the fields of the I2C register to init state
   * @retval None
   */
-void init_rcc(I2C_TypeDef *I2C_p)
+void init_i2c(I2C_TypeDef *I2C_p)
 {
   I2C_p->CR1    = 0;
   I2C_p->CR2    = 0;
@@ -45,9 +44,9 @@ int get_I2C_CR1_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear I2C CR1 register field
   * @retval None
   */
-void clear_I2C_CR1_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
+void clear_I2C_CR1_field(I2C_TypeDef *I2C_p, unsigned int msk)
 {
-    I2C_p->CR1 &= ~(msk << pos);
+    I2C_p->CR1 &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -75,9 +74,9 @@ int get_I2C_CR2_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear I2C CR2 register field
   * @retval None
   */
-void clear_I2C_CR2_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
+void clear_I2C_CR2_field(I2C_TypeDef *I2C_p, unsigned int msk)
 {
-    I2C_p->CR2 &= ~(msk << pos);
+    I2C_p->CR2 &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -105,9 +104,9 @@ int get_I2C_OAR1_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear I2C OAR1 register field
   * @retval None
   */
-void clear_I2C_OAR1_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
+void clear_I2C_OAR1_field(I2C_TypeDef *I2C_p, unsigned int msk)
 {
-    I2C_p->OAR1 &= ~(msk << pos);
+    I2C_p->OAR1 &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -135,9 +134,9 @@ int get_I2C_OAR2_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear I2C OAR2 register field
   * @retval None
   */
-void clear_I2C_OAR2_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
+void clear_I2C_OAR2_field(I2C_TypeDef *I2C_p, unsigned int msk)
 {
-    I2C_p->OAR2 &= ~(msk << pos);
+    I2C_p->OAR2 &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -165,9 +164,9 @@ int get_I2C_DR_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear I2C DR register field
   * @retval None
   */
-void clear_I2C_DR_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
+void clear_I2C_DR_field(I2C_TypeDef *I2C_p, unsigned int msk)
 {
-    I2C_p->DR &= ~(msk << pos);
+    I2C_p->DR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -195,9 +194,9 @@ int get_I2C_SR1_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear I2C SR1 register field
   * @retval None
   */
-void clear_I2C_SR1_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
+void clear_I2C_SR1_field(I2C_TypeDef *I2C_p, unsigned int msk)
 {
-    I2C_p->SR1 &= ~(msk << pos);
+    I2C_p->SR1 &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -225,9 +224,9 @@ int get_I2C_CCR_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear I2C CCR register field
   * @retval None
   */
-void clear_I2C_CCR_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
+void clear_I2C_CCR_field(I2C_TypeDef *I2C_p, unsigned int msk)
 {
-    I2C_p->CCR &= ~(msk << pos);
+    I2C_p->CCR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -255,8 +254,8 @@ int get_I2C_TRISE_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear I2C TRISE register field
   * @retval None
   */
-void clear_I2C_TRISE_field(I2C_TypeDef *I2C_p, unsigned int pos, unsigned int msk)
+void clear_I2C_TRISE_field(I2C_TypeDef *I2C_p, unsigned int msk)
 {
-    I2C_p->TRISE &= ~(msk << pos);
+    I2C_p->TRISE &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////

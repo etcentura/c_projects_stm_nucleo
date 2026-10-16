@@ -1,5 +1,4 @@
 #include "stm32f103xb.h"
-#include "custom_data_types.h"
 // Look at line 1437 at stm32f103xb.h
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -43,9 +42,9 @@ int get_GPIO_CRL_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear GPIO CRL register field
   * @retval None
   */
-void clear_GPIO_CRL_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
+void clear_GPIO_CRL_field(GPIO_TypeDef *GPIO_p, unsigned int msk)
 {
-    GPIO_p->CRL &= ~(msk << pos);
+    GPIO_p->CRL &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -73,9 +72,9 @@ int get_GPIO_CRH_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear GPIO CRH register field
   * @retval None
   */
-void clear_GPIO_CRH_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
+void clear_GPIO_CRH_field(GPIO_TypeDef *GPIO_p, unsigned int msk)
 {
-    GPIO_p->CRH &= ~(msk << pos);
+    GPIO_p->CRH &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -115,9 +114,9 @@ int get_GPIO_ODR_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
   * @brief Common fuction to clear GPIO ODR register field
   * @retval None
   */
-void clear_GPIO_ODR_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
+void clear_GPIO_ODR_field(GPIO_TypeDef *GPIO_p, unsigned int msk)
 {
-    GPIO_p->ODR &= ~(msk << pos);
+    GPIO_p->ODR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -136,9 +135,9 @@ void set_GPIO_BSRR_field(GPIO_TypeDef *GPIO_p, unsigned int val)
   * @brief Common fuction to clear GPIO BSRR register field
   * @retval None
   */
-void clear_GPIO_BSRR_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
+void clear_GPIO_BSRR_field(GPIO_TypeDef *GPIO_p, unsigned int msk)
 {
-    GPIO_p->BSRR &= ~(msk << pos);
+    GPIO_p->BSRR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -157,9 +156,9 @@ void set_GPIO_BRR_field(GPIO_TypeDef *GPIO_p, unsigned int val)
   * @brief Common fuction to clear GPIO BRR register field
   * @retval None
   */
-void clear_GPIO_BRR_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
+void clear_GPIO_BRR_field(GPIO_TypeDef *GPIO_p, unsigned int msk)
 {
-    GPIO_p->BRR &= ~(msk << pos);
+    GPIO_p->BRR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -187,8 +186,8 @@ int get_GPIO_LCKR_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk
   * @brief Common fuction to clear GPIO LCKR register field
   * @retval None
   */
-void clear_GPIO_LCKR_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
+void clear_GPIO_LCKR_field(GPIO_TypeDef *GPIO_p, unsigned int msk)
 {
-    GPIO_p->LCKR &= ~(msk << pos);
+    GPIO_p->LCKR &= ~msk;
 }
 //////////////////////////////////////////////////////////////////////////////////////////

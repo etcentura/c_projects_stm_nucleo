@@ -15,51 +15,15 @@
   *
   ******************************************************************************
   */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "bme280_related_defines.h"
 #include "stm32f103xb.h"
 
 // Custom functions and defines
+#include "custom_rcc_functions.h"
 #include "custom_gpio_functions.h"
+#include "custom_i2c_functions.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
@@ -67,10 +31,73 @@ void SystemClock_Config(void);
   */
 int main(void)
 {
+  //Setting common RCC registers
+  init_rcc(RCC);
+  set_RCC_CFGR_field  (RCC, RCC_CFGR_SW_PLL);
+  set_RCC_CFGR_field  (RCC, RCC_CFGR_PLLMULL9);
+  set_RCC_CFGR_field  (RCC, RCC_CFGR_MCO_PLLCLK_DIV2);
+  
+  set_RCC_CR_field    (RCC, RCC_CR_HSION);
+  set_RCC_CR_field    (RCC, RCC_CR_HSEON);
+  set_RCC_CR_field    (RCC, RCC_CR_PLLON);
 
-  HAL_Init();
+  while(1)
+  {
+    int captured_sws_value = get_RCC_CFGR_field(RCC, RCC_CFGR_SWS_Pos, RCC_CFGR_SWS_Msk);
+    if(captured_sws_value == 2) break;
+  }
 
-  SystemClock_Config();
+  //Resetting apb2 domain
+  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPARST);
+  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPBRST);
+  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPCRST);
+  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPDRST);
+  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPERST);
+  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_SPI1RST);
+  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_USART1RST);
+  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_ADC1RST);
+  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_ADC2RST);
+
+  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPARST_Msk);
+  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPBRST_Msk);
+  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPCRST_Msk);
+  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPDRST_Msk);
+  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPERST_Msk);
+  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_SPI1RST_Msk);
+  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_USART1RST_Msk);
+  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_ADC1RST_Msk);
+  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_ADC2RST_Msk);
+
+  //Resetting apb1 domain
+  set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_SPI2RST);
+  set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_USART2RST);
+  set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_USART3RST);
+  set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C1RST);
+  set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C2RST);
+
+  clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_SPI2RST_Msk);
+  clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_USART2RST_Msk);
+  clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_USART3RST_Msk);
+  clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C1RST_Msk);
+  clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C2RST_Msk);
+
+  //Enable apb2 domain
+  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_IOPAEN);
+  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_IOPBEN);
+  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_IOPCEN);
+  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_IOPDEN);
+  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_IOPEEN);
+  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_SPI1EN);
+  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_USART1EN);
+  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_ADC1EN);
+  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_ADC2EN);
+
+  //Enable apb1 domain
+  set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_SPI2EN);
+  set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_USART2EN);
+  set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_USART3EN);
+  set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_I2C1EN);
+  set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_I2C2EN);
 
   while (1)
   {
