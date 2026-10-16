@@ -1,198 +1,194 @@
 #include "stm32f103xb.h"
 #include "custom_data_types.h"
-// Look at line 1437
+// Look at line 1437 at stm32f103xb.h
 
+//////////////////////////////////////////////////////////////////////////////////////////
 /**
   * @brief Reset all the fields of the GPIO register to init state
   * @retval None
   */
-void init_gpio(GPIO_TypeDef *GPIO)
+void init_gpio(GPIO_TypeDef *GPIO_p)
 {
-    GPIO->CRL   = 0x44444444;
-    GPIO->CRH   = 0x44444444;
-    GPIO->IDR   = 0;
-    GPIO->ODR   = 0;
-    GPIO->BSRR  = 0;
-    GPIO->BRR   = 0;
-    GPIO->LCKR  = 0;
+    GPIO_p->CRL   = 0x44444444;
+    GPIO_p->CRH   = 0x44444444;
+    GPIO_p->IDR   = 0;
+    GPIO_p->ODR   = 0;
+    GPIO_p->BSRR  = 0;
+    GPIO_p->BRR   = 0;
+    GPIO_p->LCKR  = 0;
+}
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+/**
+  * @brief Common fuction to set GPIO CRL register field
+  * @retval None
+  */
+void set_GPIO_CRL_field(GPIO_TypeDef *GPIO_p, unsigned int val)
+{
+    GPIO_p->CRL |= val;
 }
 
 /**
-  * @brief Set GPIO CNF register filed with desired value using the GPIO_CRL_CNFx_y define
-  * @retval None
+  * @brief Common fuction to get GPIO CRL register field
+  * @retval int as the register value
   */
-void set_gpio_CRL_CRH_cnf_field(GPIO_TypeDef *GPIO, unsigned int cnf_val, boolean is_crl)
+int get_GPIO_CRL_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
 {
-    if (is_crl == FALSE)
-    {
-        GPIO->CRH |= cnf_val;
-    }
-    else
-    {
-        GPIO->CRL |= cnf_val;
-    }
+    return (GPIO_p->CRL & msk) >> pos;
 }
 
 /**
-  * @brief Clear GPIO CNF register filed with desired value using the GPIO_CRL_CNFx define
+  * @brief Common fuction to clear GPIO CRL register field
   * @retval None
   */
-void clear_gpio_CRL_CRH_cnf_field(GPIO_TypeDef *GPIO, unsigned int cnf_msk, boolean is_crl)
+void clear_GPIO_CRL_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
 {
-    if (is_crl == FALSE)
-    {
-        GPIO->CRH &= ~cnf_msk;
-    }
-    else
-    {
-        GPIO->CRL &= ~cnf_msk;
-    }
+    GPIO_p->CRL &= ~(msk << pos);
+}
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+/**
+  * @brief Common fuction to set GPIO CRH register field
+  * @retval None
+  */
+void set_GPIO_CRH_field(GPIO_TypeDef *GPIO_p, unsigned int val)
+{
+    GPIO_p->CRH |= val;
 }
 
 /**
-  * @brief Set GPIO MODE register filed with desired value using the GPIO_CRL_MODEx_y define
-  * @retval None
+  * @brief Common fuction to get GPIO CRH register field
+  * @retval int as the register value
   */
-void set_gpio_CRL_CRH_mode_field(GPIO_TypeDef *GPIO, unsigned int mode_val, boolean is_crl)
+int get_GPIO_CRH_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
 {
-    if (is_crl == FALSE)
-    {
-        GPIO->CRH |= mode_val;
-    }
-    else
-    {
-        GPIO->CRL |= mode_val;
-    }
+    return (GPIO_p->CRH & msk) >> pos;
 }
 
 /**
-  * @brief Clear GPIO MODE register filed with desired value using the GPIO_CRL_MODEx define
+  * @brief Common fuction to clear GPIO CRH register field
   * @retval None
   */
-void clear_gpio_CRL_CRH_mode_field(GPIO_TypeDef *GPIO, unsigned int mode_msk, boolean is_crl)
+void clear_GPIO_CRH_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
 {
-    if (is_crl == FALSE)
-    {
-        GPIO->CRH &= ~mode_msk;
-    }
-    else
-    {
-        GPIO->CRL &= ~mode_msk;
-    }
+    GPIO_p->CRH &= ~(msk << pos);
+}
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+/**
+  * @brief  Get GPIO IDR register field
+  * @retval None
+  */
+int set_GPIO_IDR_field(GPIO_TypeDef *GPIO_p, unsigned int msk, unsigned int pos)
+{
+    return (GPIO_p->IDR & msk) >> pos;
+}
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+/**
+  * @brief Common fuction to set GPIO ODR register field
+  * @retval None
+  */
+void set_GPIO_ODR_field(GPIO_TypeDef *GPIO_p, unsigned int val)
+{
+    GPIO_p->ODR |= val;
 }
 
 /**
-  * @brief Clear GPIO IDR register filed with desired value using the GPIO_IDR_IDRx define
-  * @retval None
+  * @brief Common fuction to get GPIO ODR register field
+  * @retval int as the register value
   */
-void set_gpio_IDR_field(GPIO_TypeDef *GPIO, unsigned int idr_val)
+int get_GPIO_ODR_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
 {
-    GPIO->IDR |= idr_val;
+    return (GPIO_p->ODR & msk) >> pos;
 }
 
 /**
-  * @brief Clear GPIO IDR register filed with desired value using the GPIO_IDR_IDRx_Msk define
+  * @brief Common fuction to clear GPIO ODR register field
   * @retval None
   */
-void clear_gpio_IDR_field(GPIO_TypeDef *GPIO, unsigned int idr_msk)
+void clear_GPIO_ODR_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
 {
-    GPIO->IDR &= ~idr_msk;
+    GPIO_p->ODR &= ~(msk << pos);
+}
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+/**
+  * @brief Common fuction to set GPIO BSRR register field
+  * @retval None
+  */
+void set_GPIO_BSRR_field(GPIO_TypeDef *GPIO_p, unsigned int val)
+{
+    GPIO_p->BSRR |= val;
 }
 
 /**
-  * @brief Clear GPIO ODR register filed with desired value using the GPIO_ODR_ODRx define
+  * @brief Common fuction to clear GPIO BSRR register field
   * @retval None
   */
-void set_gpio_ODR_field(GPIO_TypeDef *GPIO, unsigned int odr_val)
+void clear_GPIO_BSRR_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
 {
-    GPIO->ODR |= odr_val;
+    GPIO_p->BSRR &= ~(msk << pos);
+}
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+/**
+  * @brief Common fuction to set GPIO BRR register field
+  * @retval None
+  */
+void set_GPIO_BRR_field(GPIO_TypeDef *GPIO_p, unsigned int val)
+{
+    GPIO_p->BRR |= val;
 }
 
 /**
-  * @brief Clear GPIO ODR register filed with desired value using the GPIO_ODR_ODRx_Msk define
+  * @brief Common fuction to clear GPIO BRR register field
   * @retval None
   */
-void clear_gpio_ODR_field(GPIO_TypeDef *GPIO, unsigned int odr_msk)
+void clear_GPIO_BRR_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
 {
-    GPIO->ODR &= ~odr_msk;
+    GPIO_p->BRR &= ~(msk << pos);
+}
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+/**
+  * @brief Common fuction to set GPIO LCKR register field
+  * @retval None
+  */
+void set_GPIO_LCKR_field(GPIO_TypeDef *GPIO_p, unsigned int val)
+{
+    GPIO_p->LCKR |= val;
 }
 
 /**
-  * @brief Clear GPIO BSRR register filed with desired value using the GPIO_BSRR_BSx or GPIO_BSRR_BRx define
-  * @retval None
+  * @brief Common fuction to get GPIO LCKR register field
+  * @retval int as the register value
   */
-void set_gpio_BSRR_field(GPIO_TypeDef *GPIO, unsigned int bsrr_val)
+int get_GPIO_LCKR_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
 {
-    GPIO->BSRR |= bsrr_val;
+    return (GPIO_p->LCKR & msk) >> pos;
 }
 
 /**
-  * @brief Clear GPIO BSRR register filed with desired value using the GPIO_BSRR_BSx_Msk or GPIO_BSRR_BRx_Msk define
+  * @brief Common fuction to clear GPIO LCKR register field
   * @retval None
   */
-void clear_gpio_BSRR_field(GPIO_TypeDef *GPIO, unsigned int bsrr_msk)
+void clear_GPIO_LCKR_field(GPIO_TypeDef *GPIO_p, unsigned int pos, unsigned int msk)
 {
-    GPIO->BSRR &= ~bsrr_msk;
+    GPIO_p->LCKR &= ~(msk << pos);
 }
-
-/**
-  * @brief Clear GPIO BRR register filed with desired value using the GPIO_BRR_BRx define
-  * @retval None
-  */
-void set_gpio_BRR_field(GPIO_TypeDef *GPIO, unsigned int brr_val)
-{
-    GPIO->BRR |= brr_val;
-}
-
-/**
-  * @brief Clear GPIO BRR register filed with desired value using the GPIO_BRR_BRx_Msk define
-  * @retval None
-  */
-void clear_gpio_BRR_field(GPIO_TypeDef *GPIO, unsigned int brr_msk)
-{
-    GPIO->BRR &= ~brr_msk;
-}
-
-/**
-  * @brief Clear GPIO LCKR register filed with desired value using the GPIO_LCKR_LCKx define
-  * @retval None
-  */
-void set_gpio_LCKR_field(GPIO_TypeDef *GPIO, unsigned int lckr_val)
-{
-    GPIO->LCKR |= lckr_val;
-}
-
-/**
-  * @brief Clear GPIO LCKR register filed with desired value using the GPIO_LCKR_LCKx_Msk define
-  * @retval None
-  */
-void clear_gpio_LCKR_field(GPIO_TypeDef *GPIO, unsigned int lckr_msk)
-{
-    GPIO->LCKR &= ~lckr_msk;
-}
-
-/**
-  * @brief Make full GPIO register setup with desired values using GPIO define
-  * @retval None
-  */
- void setup_gpio_register
-                        (
-                            GPIO_TypeDef *GPIO          , 
-                            unsigned int cnf_val_low    , unsigned int cnf_val_high   ,
-                            unsigned int mode_val_low   , unsigned int mode_val_high  ,
-                            unsigned int idr_val        , unsigned int odr_val        ,
-                            unsigned int bsrr_val       , unsigned int brr_val        ,
-                            unsigned int lckr_val
-                        )
- {
-    init_gpio(GPIO);
-    set_gpio_CRL_CRH_cnf_field(GPIO, cnf_val_low, TRUE);
-    set_gpio_CRL_CRH_cnf_field(GPIO, cnf_val_high, FALSE);
-    set_gpio_CRL_CRH_mode_field(GPIO, mode_val_low, TRUE);
-    set_gpio_CRL_CRH_mode_field(GPIO, mode_val_high, FALSE);
-    set_gpio_IDR_field(GPIO, idr_val);
-    set_gpio_ODR_field(GPIO, odr_val);
-    set_gpio_BSRR_field(GPIO, bsrr_val);
-    set_gpio_BRR_field(GPIO, brr_val);
-    set_gpio_LCKR_field(GPIO, lckr_val);
- }
+//////////////////////////////////////////////////////////////////////////////////////////
