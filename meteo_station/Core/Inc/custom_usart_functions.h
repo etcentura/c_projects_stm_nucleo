@@ -56,7 +56,7 @@ void clear_USART_SR_field(USART_TypeDef *USART_p, unsigned int msk)
   */
 void set_USART_DR_field(USART_TypeDef *USART_p, unsigned int val)
 {
-    USART_p->DR |= val;
+    USART_p->DR = val;
 }
 
 /**

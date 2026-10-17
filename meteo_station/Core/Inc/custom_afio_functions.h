@@ -84,7 +84,7 @@ void clear_AFIO_MAPR_field(AFIO_TypeDef *AFIO_p, unsigned int msk)
   * @brief Common fuction to set AFIO EXTICR register field
   * @retval None
   */
-void set_AFIO_MAPR_field(AFIO_TypeDef *AFIO_p, unsigned int val, unsigned int sel)
+void set_AFIO_EXTICR_field(AFIO_TypeDef *AFIO_p, unsigned int val, unsigned int sel)
 {
     if(sel > 3)
     {
@@ -100,7 +100,7 @@ void set_AFIO_MAPR_field(AFIO_TypeDef *AFIO_p, unsigned int val, unsigned int se
   * @brief Common fuction to get AFIO EXTICR register field
   * @retval int as the register value
   */
-int EXTICR(AFIO_TypeDef *AFIO_p, unsigned int pos, unsigned int msk, unsigned int sel)
+int get_AFIO_EXTICR_field(AFIO_TypeDef *AFIO_p, unsigned int pos, unsigned int msk, unsigned int sel)
 {
     if(sel > 3)
     {

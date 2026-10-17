@@ -21,7 +21,9 @@
 // Custom functions and defines
 #include "custom_rcc_functions.h"
 #include "custom_gpio_functions.h"
-#include "custom_i2c_functions.h"
+#include "custom_usart_functions.h"
+#include "custom_afio_functions.h"
+
 
 void SystemClock_Config(void);
 
@@ -37,8 +39,6 @@ int main(void)
   set_RCC_CFGR_field  (RCC, RCC_CFGR_PLLMULL9);
   set_RCC_CFGR_field  (RCC, RCC_CFGR_MCO_PLLCLK_DIV2);
   
-  set_RCC_CR_field    (RCC, RCC_CR_HSION);
-  set_RCC_CR_field    (RCC, RCC_CR_HSEON);
   set_RCC_CR_field    (RCC, RCC_CR_PLLON);
 
   while(1)
@@ -47,61 +47,45 @@ int main(void)
     if(captured_sws_value == 2) break;
   }
 
-  //Resetting apb2 domain
-  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPARST);
-  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPBRST);
+  // //Resetting apb2 domain
   set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPCRST);
-  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPDRST);
-  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPERST);
-  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_SPI1RST);
-  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_USART1RST);
-  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_ADC1RST);
-  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_ADC2RST);
+  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_AFIORST);
 
-  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPARST_Msk);
-  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPBRST_Msk);
   clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPCRST_Msk);
-  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPDRST_Msk);
-  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPERST_Msk);
-  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_SPI1RST_Msk);
-  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_USART1RST_Msk);
-  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_ADC1RST_Msk);
-  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_ADC2RST_Msk);
+  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_AFIORST_Msk);
 
-  //Resetting apb1 domain
-  set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_SPI2RST);
-  set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_USART2RST);
+  // //Resetting apb1 domain
   set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_USART3RST);
-  set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C1RST);
-  set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C2RST);
-
-  clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_SPI2RST_Msk);
-  clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_USART2RST_Msk);
   clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_USART3RST_Msk);
-  clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C1RST_Msk);
-  clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C2RST_Msk);
 
-  //Enable apb2 domain
-  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_IOPAEN);
-  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_IOPBEN);
+  // //Enable apb2 domain
   set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_IOPCEN);
-  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_IOPDEN);
-  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_IOPEEN);
-  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_SPI1EN);
-  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_USART1EN);
-  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_ADC1EN);
-  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_ADC2EN);
+  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_AFIOEN);
 
-  //Enable apb1 domain
-  set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_SPI2EN);
-  set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_USART2EN);
+  // //Enable apb1 domain
   set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_USART3EN);
-  set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_I2C1EN);
-  set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_I2C2EN);
+
+  // //Setting up pc10 and 11 for usart3
+  // // For instance, on NUCLEO-F103RB it is possible to use USART3 available on PC10 (TX) and PC11 (RX).
+  // // Two flying wires need to be connected as follows:
+  // // PC10 (USART3_TX) available on CN7 pin 1 to CN3 pin RX
+  // // PC11 (USART3_RX) available on CN7 pin 2 to CN3 pin TX
+  // // Use GPIOC to drive usart, also remap gpio using AFIO registers
+  set_AFIO_MAPR_field(AFIO, AFIO_MAPR_USART3_REMAP_0);
+
+  clear_GPIO_CRH_field(GPIOC, GPIO_CRH_CNF10_Msk);
+  set_GPIO_CRH_field(GPIOC, GPIO_CRH_CNF10_1);
+  set_GPIO_CRH_field(GPIOC, GPIO_CRH_MODE10);
+  
+  // //Setting up usart3
+  set_USART_CR1_field(USART3, USART_CR1_UE);
+  set_USART_CR1_field(USART3, USART_CR1_TE);
+  USART3->BRR = 3750;
 
   while (1)
   {
-
+    while(get_USART_SR_field(USART3, USART_SR_TXE_Pos, USART_SR_TXE_Msk) == 0){}
+    set_USART_DR_field(USART3, 0xAA);
   }
 }
 
