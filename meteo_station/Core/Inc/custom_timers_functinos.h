@@ -4,7 +4,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /**
-  * @brief Reset all the fields of the ADC register to init state
+  * @brief Reset all the fields of the TIM register to init state
   * @retval None
   */
 void init_TIM(TIM_TypeDef *TIM_p)
