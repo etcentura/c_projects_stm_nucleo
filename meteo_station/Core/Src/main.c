@@ -36,6 +36,8 @@ int main(void)
   //Setting common RCC registers
   init_RCC(RCC);
   init_RCC(RCC);
+
+  uint16_t my_counter = 0;
   set_RCC_CFGR_field  (RCC, RCC_CFGR_SW_PLL);
   set_RCC_CFGR_field  (RCC, RCC_CFGR_PLLMULL9);
   set_RCC_CFGR_field  (RCC, RCC_CFGR_MCO_PLLCLK_DIV2);
@@ -87,6 +89,7 @@ int main(void)
   {
     while(get_USART_SR_field(USART3, USART_SR_TXE_Pos, USART_SR_TXE_Msk) == 0){}
     set_USART_DR_field(USART3, 0xAA);
+    my_counter++;
   }
 }
 
