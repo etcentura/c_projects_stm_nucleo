@@ -35,6 +35,7 @@ int main(void)
 {
   //Setting common RCC registers
   init_RCC(RCC);
+  init_RCC(RCC);
   set_RCC_CFGR_field  (RCC, RCC_CFGR_SW_PLL);
   set_RCC_CFGR_field  (RCC, RCC_CFGR_PLLMULL9);
   set_RCC_CFGR_field  (RCC, RCC_CFGR_MCO_PLLCLK_DIV2);
