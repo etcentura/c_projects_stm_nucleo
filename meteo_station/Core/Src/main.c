@@ -26,8 +26,31 @@
 #include "custom_afio_functions.h"
 
 ////////////////////////////////////////////////////////////////
+// --- BH1750: КОНСТАНТЫ И ПРОТОТИПЫ ---
+#define BH1750_ADDR        (0x23 << 1)  // Адрес 0x23, сдвинутый для I2C
+// Если не работает, попробуй (0x5C << 1)
+
+// Команды BH1750 (из даташита)
+#define BH1750_POWER_ON    0x01
+#define BH1750_CONT_HIRES  0x10  // Непрерывный режим, высокое разрешение (1 lx)
+#define BH1750_ONE_HIRES   0x20  // Однократный режим, высокое разрешение (1 lx)
+#define BH1750_CONT_HIRES2 0x11  // Непрерывный режим, 0.5 lx
+#define BH1750_ONE_HIRES2  0x21  // Однократный режим, 0.5 lx
+#define BH1750_CONT_LORES  0x13  // Непрерывный режим, низкое разрешение (4 lx)
+#define BH1750_ONE_LORES   0x23  // Однократный режим, низкое разрешение (4 lx)
+
+// Прототипы
+void I2C2_Init(void);
+uint8_t BH1750_WriteCmd(uint8_t cmd);
+uint8_t BH1750_ReadRaw(uint16_t *raw);
+float BH1750_ReadLux(void);
+void I2C2_Recovery(void);
+////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////
+// --- BME280: КОНСТАНТЫ И ПРОТОТИПЫ ---
 #define BME280_ADDR        (0x76 << 1)  // Адрес 0x76, сдвинутый для I2C
-// Если не работает, попробуй (0x77 << 1)
 
 // Регистры BME280
 #define BME280_REG_CALIB00  0x88
@@ -58,7 +81,6 @@ typedef struct {
     float pressure;    // Pa
     float humidity;    // %
 } BME280_Data;
-////////////////////////////////////////////////////////////////
 
 void SystemClock_Config(void);
 void I2C1_Init(void);
@@ -70,6 +92,7 @@ static int32_t BME280_CompensateT(int32_t adc_T);
 static unsigned int BME280_CompensateP(int32_t adc_P);
 static unsigned int BME280_CompensateH(int32_t adc_H);
 uint8_t BME280_Read(BME280_Data *out);
+////////////////////////////////////////////////////////////////
 
 
 /**
@@ -105,8 +128,10 @@ int main(void)
   // //Resetting apb1 domain
   set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_USART3RST);
   set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C1RST);
+  set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C2RST);
   clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_USART3RST_Msk);
   clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C1RST_Msk);
+  clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C2RST_Msk);
 
   // //Enable apb2 domain
   set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_IOPCEN);
@@ -116,6 +141,7 @@ int main(void)
   // //Enable apb1 domain
   set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_USART3EN);
   set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_I2C1EN);
+  set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_I2C2EN);
 
   // //Setting up pc10 and 11 for usart3
   // // For instance, on NUCLEO-F103RB it is possible to use USART3 available on PC10 (TX) and PC11 (RX).
@@ -132,33 +158,60 @@ int main(void)
   // //Setting up usart3
   set_USART_CR1_field(USART3, USART_CR1_UE);
   set_USART_CR1_field(USART3, USART_CR1_TE);
+  set_USART_CR1_field(USART3, USART_CR1_RE);
   USART3->BRR = 3750;
 
+
+
+
+  ////////////////////////////////////////////////////////////////////////////////
+  //USART tx-rx example for gps tracker
   // while (1)
   // {
   //   while(get_USART_SR_field(USART3, USART_SR_TXE_Pos, USART_SR_TXE_Msk) == 0){}
   //   set_USART_DR_field(USART3, 0xAA);
+
+  //   while ((USART1->SR & USART_SR_RXNE) == 0) {}
+  //   unsigned int d = USART1->DR;
   // }
 
-  I2C1_Init();
-
-  if (!BME280_Init()) {
-      // Ошибка: сенсор не найден или не BME280
-      while (1);
-  }
-
-  BME280_Data data;
-
+  ////////////////////////////////////////////////////////////////////////////////
+  //I2C example for bmh1750
+  I2C2_Init();
   while (1) {
-        if (BME280_Read(&data)) {
-            // data.temperature, data.pressure, data.humidity
-            volatile float t = data.temperature;
-            volatile float p = data.pressure;
-            volatile float h = data.humidity;
-            (void)t; (void)p; (void)h;
-        }
-        for (volatile unsigned int i = 0; i < 1000000; i++);
+    float lux = BH1750_ReadLux();
+    if (lux >= 0) {
+        volatile float l = lux;
+        (void)l;
     }
+
+    for (volatile unsigned int i = 0; i < 3000000; i++);
+  }
+  ////////////////////////////////////////////////////////////////////////////////
+
+
+  ////////////////////////////////////////////////////////////////////////////////
+  //I2C example for bme280
+  // I2C1_Init();
+
+  // if (!BME280_Init()) {
+  //     // Ошибка: сенсор не найден или не BME280
+  //     while (1);
+  // }
+
+  // BME280_Data data;
+
+  // while (1) {
+  //       if (BME280_Read(&data)) {
+  //           // data.temperature, data.pressure, data.humidity
+  //           volatile float t = data.temperature;
+  //           volatile float p = data.pressure;
+  //           volatile float h = data.humidity;
+  //           (void)t; (void)p; (void)h;
+  //       }
+  //       for (volatile unsigned int i = 0; i < 1000000; i++);
+  //   }
+  ////////////////////////////////////////////////////////////////////////////////
 }
 
 /**
@@ -196,7 +249,161 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 }
+
 ////////////////////////////////////////////////////////////////
+// --- BH1750: ФУНКЦИИ ---
+// BH1750	  STM32F103RB	  Примечание
+// VCC	    3.3V	        Питание
+// GND	    GND	          Земля
+// SCL	    PB10	        Тактирование I2C2
+// SDA	    PB11	        Данные I2C2
+void I2C2_Init(void)
+{
+    // Настройка PB10 (SCL) и PB11 (SDA) как AF Open-Drain, 50 MHz
+    // Очищаем биты для PB10 и PB11 в CRH (так как это старшие пины)
+    GPIOB->CRH &= ~(GPIO_CRH_CNF10 | GPIO_CRH_MODE10 | GPIO_CRH_CNF11 | GPIO_CRH_MODE11);
+    // Устанавливаем: Output mode 50MHz (MODE=11), AF Open-Drain (CNF=11)
+    GPIOB->CRH |= (GPIO_CRH_MODE10_1 | GPIO_CRH_MODE10_0 | GPIO_CRH_CNF10_1 | GPIO_CRH_CNF10_0);
+    GPIOB->CRH |= (GPIO_CRH_MODE11_1 | GPIO_CRH_MODE11_0 | GPIO_CRH_CNF11_1 | GPIO_CRH_CNF11_0);
+
+    // Сброс I2C2
+    I2C2->CR1 |= I2C_CR1_SWRST;
+    I2C2->CR1 &= ~I2C_CR1_SWRST;
+
+    // Настройка (APB1 = 36 МГц, как у тебя в проекте)
+    I2C2->CR2 = 36;      // Частота APB1 в МГц
+    I2C2->CCR = 180;     // 100 кГц (36MHz / (2*100kHz))
+    I2C2->TRISE = 37;    // (36 * 1000ns / 1000) + 1
+
+    // Включение
+    I2C2->CR1 |= I2C_CR1_PE;
+}
+
+uint8_t BH1750_WriteCmd(uint8_t cmd)
+{
+    unsigned int timeout = 100000;
+
+    // START
+    I2C2->CR1 |= I2C_CR1_START;
+    while (!(I2C2->SR1 & I2C_SR1_SB)) { if (--timeout == 0) return 0; }
+
+    // Адрес + W
+    I2C2->DR = BH1750_ADDR;
+    while (!(I2C2->SR1 & I2C_SR1_ADDR)) { if (--timeout == 0) return 0; }
+    (void)I2C2->SR1; (void)I2C2->SR2; // Очистка ADDR
+
+    // Команда
+    I2C2->DR = cmd;
+    while (!(I2C2->SR1 & I2C_SR1_TXE)) { if (--timeout == 0) return 0; }
+
+    // STOP
+    I2C2->CR1 |= I2C_CR1_STOP;
+    return 1;
+}
+
+uint8_t BH1750_ReadRaw(uint16_t *raw)
+{
+    unsigned int timeout = 100000;
+    uint8_t buf[2];
+
+    // START
+    I2C2->CR1 |= I2C_CR1_START;
+    while (!(I2C2->SR1 & I2C_SR1_SB)) { if (--timeout == 0) return 0; }
+
+    // Адрес + R
+    I2C2->DR = BH1750_ADDR | 1;
+    while (!(I2C2->SR1 & I2C_SR1_ADDR)) { if (--timeout == 0) return 0; }
+
+    // Очистка ADDR
+    (void)I2C2->SR1; (void)I2C2->SR2;
+
+    // Чтение 2 байт (MSB first)
+    // Первый байт - ACK
+    I2C2->CR1 |= I2C_CR1_ACK;
+    while (!(I2C2->SR1 & I2C_SR1_RXNE)) { if (--timeout == 0) return 0; }
+    buf[0] = I2C2->DR;
+
+    // Второй байт - NACK + STOP
+    I2C2->CR1 &= ~I2C_CR1_ACK;
+    I2C2->CR1 |= I2C_CR1_STOP;
+    while (!(I2C2->SR1 & I2C_SR1_RXNE)) { if (--timeout == 0) return 0; }
+    buf[1] = I2C2->DR;
+
+    *raw = ((uint16_t)buf[0] << 8) | buf[1];
+    return 1;
+}
+
+float BH1750_ReadLux(void)
+{
+    uint16_t raw = 0;
+
+    // 1. Включаем питание (если ещё не включён)
+    // BH1750_WriteCmd(BH1750_POWER_ON);
+
+    if (!BH1750_WriteCmd(BH1750_POWER_ON)) {
+        I2C2_Recovery(); // <-- Восстановление
+        return -1.0f;
+    }
+
+    // 2. Запускаем однократное измерение в режиме высокого разрешения (1 lx)
+    // BH1750_WriteCmd(BH1750_ONE_HIRES);
+    
+    if (!BH1750_WriteCmd(BH1750_ONE_HIRES)) {
+        I2C2_Recovery(); // <-- Восстановление
+        return -1.0f;
+    }
+
+    // 3. Ждём время интеграции. Для режима H-Res это ~120 мс, с запасом подождём 180 мс.
+    //    Используем простой цикл, если нет SysTick задержки.
+    for (volatile unsigned int i = 0; i < 180000; i++); 
+
+    // 4. Читаем результат
+    // if (!BH1750_ReadRaw(&raw)) return -1.0f; // Ошибка
+
+    if (!BH1750_ReadRaw(&raw)) {
+        I2C2_Recovery(); // <-- Восстановление
+        return -1.0f;
+    }
+
+    // 5. Пересчёт в люксы: lux = raw / 1.2
+    //    (Для режима H-Res2 (0.5 lx) нужно было бы raw / 1.2 / 2)
+    return (float)raw / 1.2f;
+}
+
+void I2C2_Recovery(void)
+{
+    // 1. Выключаем периферию
+    I2C2->CR1 &= ~I2C_CR1_PE;
+    for (volatile int i = 0; i < 100; i++); // Небольшая задержка
+
+    // 2. Программный сброс (SWRST)
+    I2C2->CR1 |= I2C_CR1_SWRST;
+    for (volatile int i = 0; i < 100; i++);
+    I2C2->CR1 &= ~I2C_CR1_SWRST;
+
+    // 3. Заново настраиваем (как в I2C2_Init)
+    I2C2->CR2 = 36;
+    I2C2->CCR = 180;
+    I2C2->TRISE = 37;
+
+    // 4. Включаем обратно
+    I2C2->CR1 |= I2C_CR1_PE;
+}
+////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////
+// --- BME280: ФУНКЦИИ ---
+
+// VCC (или 3.3V): Подключить к пину 3.3V на плате.
+
+// GND: Подключить к GND на STM32.
+
+// SCL (Serial Clock): Подключить к пину PB6 на STM32.
+
+// SDA (Serial Data): Подключить к пину PB7 на STM32.
+
 void I2C1_Init(void)
 {
   //Clearing up bits for pb6(scl) and pb7(sda)
@@ -418,3 +625,4 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
+
