@@ -222,19 +222,74 @@ int main(void)
 
   ////////////////////////////////////////////////////////////////////////////////
   //ADC example for MQ-135 - использовать пин PA0
-  ADC1_Init_PA0();
+  //   ADC1_Init_PA0();
+  
+  //   while (1) {
+  //       uint16_t adc_raw = ADC1_Read_PA0();
+  //       // Пересчёт в напряжение (опционально, если Vref = 3.3V)
+  //       float voltage = (adc_raw * 3.3f) / 4095.0f;
+        
+  //       // adc_raw и voltage можно отправить по USART3 или просто смотреть в отладчике
+  //       volatile uint16_t debug_raw = adc_raw;
+  //       (void)debug_raw;
+        
+  //       for (volatile int i = 0; i < 1000000; i++); // Пауза
+  //   }
+  ////////////////////////////////////////////////////////////////////////////////
 
-  while (1) {
-      uint16_t adc_raw = ADC1_Read_PA0();
-      // Пересчёт в напряжение (опционально, если Vref = 3.3V)
-      float voltage = (adc_raw * 3.3f) / 4095.0f;
-      
-      // adc_raw и voltage можно отправить по USART3 или просто смотреть в отладчике
-      volatile uint16_t debug_raw = adc_raw;
-      (void)debug_raw;
-      
-      for (volatile int i = 0; i < 1000000; i++); // Пауза
-  }
+  ////////////////////////////////////////////////////////////////////////////////
+  //All in one sensors
+    I2C2_Init();        // bmh1750
+    I2C1_Init();        // bme280
+    ADC1_Init_PA0();    // MQ-135
+
+    if (!BME280_Init()) {
+        // Ошибка: сенсор не найден или не BME280
+        while (1);
+    }
+
+    BME280_Data data;
+
+    while (1) {
+    //Declaring variables for the sensors
+        volatile float l; //lux
+
+        volatile float t; //temperature
+        volatile float p; //pressure
+        volatile float h; //humidity
+
+        uint16_t adc_raw; //ADC read from MQ-135
+        volatile float voltage; //voltage from mq-135
+        volatile uint16_t debug_raw;
+
+
+        float lux = BH1750_ReadLux();
+        if (lux >= 0) {
+            l = lux;
+            (void)l;
+        }
+    
+        for (volatile unsigned int i = 0; i < 3000000; i++);
+
+        if (BME280_Read(&data)) {
+                // data.temperature, data.pressure, data.humidity
+                t = data.temperature;
+                p = data.pressure;
+                h = data.humidity;
+                (void)t; (void)p; (void)h;
+            }
+        for (volatile unsigned int j = 0; j < 1000000; j++);
+
+        adc_raw = ADC1_Read_PA0();
+
+        voltage = (adc_raw * 3.3f) / 4095.0f;
+
+        debug_raw = adc_raw;
+        (void)debug_raw;
+        
+        for (volatile int k = 0; k < 1000000; k++); // Пауза
+    }
+
   ////////////////////////////////////////////////////////////////////////////////
 }
 
