@@ -1,0 +1,1 @@
+start "Meteo Station Handler" py get_plots.py

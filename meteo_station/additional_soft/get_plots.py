@@ -136,6 +136,17 @@ def main():
     ser = serial.Serial(COM_PORT, BAUD_RATE, timeout=1)
     print(f"Открыт {COM_PORT} на {BAUD_RATE} бод. Ждём данные...")
 
+    current_time = str(datetime.now())
+    current_time = current_time.replace(' ', '_')
+    current_time = current_time.replace(':', '_')
+    filename = "meteostation_{}.log".format(current_time)
+    with open(filename, "w") as file:
+        file.write("*"*50)
+        file.write("\n")
+        file.write("Log start at {}\n".format(str(datetime.now())))
+        file.write("*"*50)
+        file.write("\n")
+    
     def on_block(data):
         now = datetime.now()
         times.append(now)
@@ -145,9 +156,12 @@ def main():
         pres.append(data["PRES"])
         air_val = (data["VOLT"] / 4.0) * 100.0
         air.append(air_val)
-        print(f"{now.strftime('%H:%M:%S')}  "
-              f"LUX={data['LUX']:.0f}  T={data['TEMP']:.2f}  "
-              f"H={data['HUM']:.2f}  P={data['PRES']:.2f}  AIR={air_val:.2f}")
+        string_to_write = (f"{now.strftime('%H:%M:%S')}  "
+            f"LUX={data['LUX']:.0f}  T={data['TEMP']:.2f}  "
+            f"H={data['HUM']:.2f}  P={data['PRES']:.2f}  AIR={air_val:.2f}")
+        print(string_to_write)
+        with open(filename, "a") as file:
+            file.write(string_to_write+'\n')
 
     # Запускаем чтение порта в фоновом потоке, чтобы не блокировать анимацию
     import threading
