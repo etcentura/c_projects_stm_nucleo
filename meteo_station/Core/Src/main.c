@@ -102,6 +102,17 @@ uint16_t ADC1_Read_PA0(void);
 ////////////////////////////////////////////////////////////////
 
 
+////////////////////////////////////////////////////////////////
+// --- USART3: КОНСТАНТЫ И ПРОТОТИПЫ ---
+void USART2_SendChar(char c);
+void USART2_SendString(const char *s);
+void USART2_SendInt(int32_t value);
+void USART2_SendFloat2(float value);
+void USART2_SendNewline(void);
+////////////////////////////////////////////////////////////////
+
+
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -110,12 +121,30 @@ int main(void)
 {
   //Setting common RCC registers
   init_RCC(RCC);
-
-  set_RCC_CFGR_field  (RCC, RCC_CFGR_SW_PLL);
-  set_RCC_CFGR_field  (RCC, RCC_CFGR_PLLMULL9);
-  set_RCC_CFGR_field  (RCC, RCC_CFGR_MCO_PLLCLK_DIV2);
+//   set_RCC_CFGR_field  (RCC, RCC_CFGR_SW_PLL);
+//   set_RCC_CFGR_field  (RCC, RCC_CFGR_PLLMULL9);
+//   set_RCC_CFGR_field  (RCC, RCC_CFGR_MCO_PLLCLK_DIV2);
   
-  set_RCC_CR_field    (RCC, RCC_CR_PLLON);
+//   set_RCC_CR_field    (RCC, RCC_CR_PLLON);
+
+  // 1. Настраиваем PLL, пока он выключен
+  RCC->CFGR &= ~RCC_CFGR_PLLMULL;
+  RCC->CFGR |= RCC_CFGR_PLLMULL9;      // x9
+  RCC->CFGR &= ~RCC_CFGR_PLLSRC;       // PLLSRC = 0 → HSI/2 = 4 МГц
+  // (если хотите HSE: RCC->CFGR |= RCC_CFGR_PLLSRC;)
+
+  // 2. Включаем PLL
+  RCC->CR |= RCC_CR_PLLON;
+  while (!(RCC->CR & RCC_CR_PLLRDY));
+
+  // 3. Переключаем SYSCLK на PLL
+  RCC->CFGR &= ~RCC_CFGR_SW;
+  RCC->CFGR |= RCC_CFGR_SW_PLL;
+  while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
+
+  // 4. Делители
+  RCC->CFGR &= ~RCC_CFGR_PPRE1;
+  RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;    // APB1 = SYSCLK / 2
 
   while(1)
   {
@@ -123,64 +152,54 @@ int main(void)
     if(captured_sws_value == 2) break;
   }
 
+  RCC->CFGR &= ~RCC_CFGR_PPRE1;
+  RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;   // APB1 = 36 МГц
+
   // //Resetting apb2 domain
-  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPCRST);
+  set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPARST);
   set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPBRST);
   set_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_AFIORST);
-
-  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPCRST_Msk);
+  
+  clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPARST_Msk);
   clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_IOPBRST_Msk);
   clear_RCC_APB2RSTR_field(RCC, RCC_APB2RSTR_AFIORST_Msk);
 
   // //Resetting apb1 domain
-  set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_USART3RST);
+  set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_USART2RST);
   set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C1RST);
   set_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C2RST);
-  clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_USART3RST_Msk);
+  clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_USART2RST_Msk);
   clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C1RST_Msk);
   clear_RCC_APB1RSTR_field(RCC, RCC_APB1RSTR_I2C2RST_Msk);
 
   // //Enable apb2 domain
-  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_IOPCEN);
+  set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_IOPAEN);
   set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_IOPBEN);
   set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_AFIOEN);
 
   // //Enable apb1 domain
-  set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_USART3EN);
+  set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_USART2EN);
   set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_I2C1EN);
   set_RCC_APB1ENR_field(RCC, RCC_APB1ENR_I2C2EN);
 
-  // //Setting up pc10 and 11 for usart3
-  // // For instance, on NUCLEO-F103RB it is possible to use USART3 available on PC10 (TX) and PC11 (RX).
-  // // Two flying wires need to be connected as follows:
-  // // PC10 (USART3_TX) available on CN7 pin 1 to CN3 pin RX
-  // // PC11 (USART3_RX) available on CN7 pin 2 to CN3 pin TX
-  // // Use GPIOC to drive usart, also remap gpio using AFIO registers
-  set_AFIO_MAPR_field(AFIO, AFIO_MAPR_USART3_REMAP_0);
 
-  clear_GPIO_CRH_field(GPIOC, GPIO_CRH_CNF10_Msk);
-  set_GPIO_CRH_field(GPIOC, GPIO_CRH_CNF10_1);
-  set_GPIO_CRH_field(GPIOC, GPIO_CRH_MODE10);
-  
-  // //Setting up usart3
-  set_USART_CR1_field(USART3, USART_CR1_UE);
-  set_USART_CR1_field(USART3, USART_CR1_TE);
-  set_USART_CR1_field(USART3, USART_CR1_RE);
-  USART3->BRR = 3750;
+  // //Setting up usart2
+  // PA2 tx
+  // PA3 rx
+  //PA2
+  GPIOA->CRL &= ~(GPIO_CRL_CNF2 | GPIO_CRL_MODE2);
+  GPIOA->CRL |= (GPIO_CRL_MODE2_1 | GPIO_CRL_MODE2_0 | GPIO_CRL_CNF2_1);
+  //PA3
+  GPIOA->CRL &= ~(GPIO_CRL_CNF3 | GPIO_CRL_MODE3);
+  GPIOA->CRL |= GPIO_CRL_CNF3_0;
 
+  USART2->BRR = 1875; // 9600 бод при APB1 = 18 МГц
+  USART2->CR1 &= ~(USART_CR1_M | USART_CR1_PCE | USART_CR1_PS); // 8 бит, без чётности
+  USART2->CR2 &= ~USART_CR2_STOP; // 1 стоп-бит
 
-
-
-  ////////////////////////////////////////////////////////////////////////////////
-  //USART tx-rx example for gps tracker
-  // while (1)
-  // {
-  //   while(get_USART_SR_field(USART3, USART_SR_TXE_Pos, USART_SR_TXE_Msk) == 0){}
-  //   set_USART_DR_field(USART3, 0xAA);
-
-  //   while ((USART1->SR & USART_SR_RXNE) == 0) {}
-  //   unsigned int d = USART1->DR;
-  // }
+  set_USART_CR1_field(USART2, USART_CR1_UE); // Включаем USART
+  set_USART_CR1_field(USART2, USART_CR1_TE); // Включаем передатчик
+  set_USART_CR1_field(USART2, USART_CR1_RE); // Включаем приёмник
 
   ////////////////////////////////////////////////////////////////////////////////
   //I2C example for bmh1750
@@ -220,6 +239,7 @@ int main(void)
   //   }
   ////////////////////////////////////////////////////////////////////////////////
 
+
   ////////////////////////////////////////////////////////////////////////////////
   //ADC example for MQ-135 - использовать пин PA0
   //   ADC1_Init_PA0();
@@ -237,6 +257,7 @@ int main(void)
   //   }
   ////////////////////////////////////////////////////////////////////////////////
 
+
   ////////////////////////////////////////////////////////////////////////////////
   //All in one sensors
     I2C2_Init();        // bmh1750
@@ -251,7 +272,7 @@ int main(void)
     BME280_Data data;
 
     while (1) {
-    //Declaring variables for the sensors
+        //Declaring variables for the sensors
         volatile float l; //lux
 
         volatile float t; //temperature
@@ -288,6 +309,35 @@ int main(void)
         (void)debug_raw;
         
         for (volatile int k = 0; k < 1000000; k++); // Пауза
+
+        USART2_SendString("LUX");
+        USART2_SendNewline();
+        USART2_SendInt((int32_t)lux);
+        USART2_SendNewline();
+
+        USART2_SendString("TEMP");
+        USART2_SendNewline();
+        USART2_SendFloat2(data.temperature);
+        USART2_SendNewline();
+
+        USART2_SendString("HUM");
+        USART2_SendNewline();
+        USART2_SendFloat2(data.humidity);
+        USART2_SendNewline();
+
+        USART2_SendString("PRES");           // вы упомянули давление — добавил
+        USART2_SendNewline();
+        USART2_SendFloat2(data.pressure / 100.0f); // Па -> гПа (мбар)
+        USART2_SendNewline();
+
+        USART2_SendString("VOLT");
+        USART2_SendNewline();
+        USART2_SendFloat2(voltage);
+        USART2_SendNewline();
+
+        USART2_SendNewline(); // пустая строка-разделитель между блоками
+
+        for (volatile int ii = 0; ii < 1000000; ii++); // Пауза
     }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -691,6 +741,7 @@ uint8_t BME280_Read(BME280_Data *out)
 
 ////////////////////////////////////////////////////////////////
 // --- MQ-135: ФУНКЦИИ ---
+// PA0 for analog input
 void ADC1_Init_PA0(void)
 {
     // 0. Включение тактирования, настройка ноги
@@ -737,6 +788,82 @@ uint16_t ADC1_Read_PA0(void)
     return ADC1->DR;
 }
 ////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////
+// --- USART3: ФУНКЦИИ ---
+void USART2_SendChar(char c)
+{
+    while (!(USART2->SR & USART_SR_TXE)); // Ждём, пока освободится передающий регистр
+    USART2->DR = (uint8_t)c;
+}
+
+void USART2_SendString(const char *s)
+{
+    while (*s) {
+        USART2_SendChar(*s++);
+    }
+}
+
+// Отправка целого числа (например, lux)
+void USART2_SendInt(int32_t value)
+{
+    char buf[12];
+    int i = 0;
+    uint8_t negative = 0;
+
+    if (value < 0) {
+        negative = 1;
+        value = -value;
+    }
+
+    if (value == 0) {
+        USART2_SendChar('0');
+        return;
+    }
+
+    while (value > 0) {
+        buf[i++] = '0' + (value % 10);
+        value /= 10;
+    }
+
+    if (negative) USART2_SendChar('-');
+
+    while (i > 0) {
+        USART2_SendChar(buf[--i]);
+    }
+}
+
+// Отправка float с двумя знаками после запятой (например, 28.50)
+void USART2_SendFloat2(float value)
+{
+    // Обработка отрицательных
+    if (value < 0) {
+        USART2_SendChar('-');
+        value = -value;
+    }
+
+    // Целая часть
+    int32_t int_part = (int32_t)value;
+    USART2_SendInt(int_part);
+
+    USART2_SendChar('.');
+
+    // Дробная часть: округляем до 2 знаков
+    int32_t frac = (int32_t)((value - int_part) * 100.0f + 0.5f);
+    if (frac >= 100) frac = 99; // защита от 0.999 -> 1.00
+
+    if (frac < 10) USART2_SendChar('0'); // ведущий ноль
+    USART2_SendInt(frac);
+}
+
+void USART2_SendNewline(void)
+{
+    USART2_SendChar('\r');
+    USART2_SendChar('\n');
+}
+////////////////////////////////////////////////////////////////
+
 
 /**
   * @brief  This function is executed in case of error occurrence.
