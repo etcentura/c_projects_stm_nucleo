@@ -95,6 +95,13 @@ uint8_t BME280_Read(BME280_Data *out);
 ////////////////////////////////////////////////////////////////
 
 
+////////////////////////////////////////////////////////////////
+// --- MQ-135: КОНСТАНТЫ И ПРОТОТИПЫ ---
+void ADC1_Init_PA0(void);
+uint16_t ADC1_Read_PA0(void);
+////////////////////////////////////////////////////////////////
+
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -177,16 +184,16 @@ int main(void)
 
   ////////////////////////////////////////////////////////////////////////////////
   //I2C example for bmh1750
-  I2C2_Init();
-  while (1) {
-    float lux = BH1750_ReadLux();
-    if (lux >= 0) {
-        volatile float l = lux;
-        (void)l;
-    }
-
-    for (volatile unsigned int i = 0; i < 3000000; i++);
-  }
+  //   I2C2_Init();
+  //   while (1) {
+  //     float lux = BH1750_ReadLux();
+  //     if (lux >= 0) {
+  //         volatile float l = lux;
+  //         (void)l;
+  //     }
+  
+  //     for (volatile unsigned int i = 0; i < 3000000; i++);
+  //   }
   ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -211,6 +218,23 @@ int main(void)
   //       }
   //       for (volatile unsigned int i = 0; i < 1000000; i++);
   //   }
+  ////////////////////////////////////////////////////////////////////////////////
+
+  ////////////////////////////////////////////////////////////////////////////////
+  //ADC example for MQ-135 - использовать пин PA0
+  ADC1_Init_PA0();
+
+  while (1) {
+      uint16_t adc_raw = ADC1_Read_PA0();
+      // Пересчёт в напряжение (опционально, если Vref = 3.3V)
+      float voltage = (adc_raw * 3.3f) / 4095.0f;
+      
+      // adc_raw и voltage можно отправить по USART3 или просто смотреть в отладчике
+      volatile uint16_t debug_raw = adc_raw;
+      (void)debug_raw;
+      
+      for (volatile int i = 0; i < 1000000; i++); // Пауза
+  }
   ////////////////////////////////////////////////////////////////////////////////
 }
 
@@ -610,6 +634,54 @@ uint8_t BME280_Read(BME280_Data *out)
 }
 ////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////
+// --- MQ-135: ФУНКЦИИ ---
+void ADC1_Init_PA0(void)
+{
+    // 0. Включение тактирования, настройка ноги
+    set_RCC_APB2ENR_field(RCC, RCC_APB2ENR_ADC1EN);
+    GPIOA->CRL &= ~(GPIO_CRL_CNF0 | GPIO_CRL_MODE0);
+
+    // 1. Делитель частоты ADC: PCLK2/6
+    RCC->CFGR &= ~RCC_CFGR_ADCPRE;
+    RCC->CFGR |= RCC_CFGR_ADCPRE_DIV6;
+
+    // 2. Включаем ADC1
+    ADC1->CR2 |= ADC_CR2_ADON;
+    for (volatile int i = 0; i < 100; i++);
+
+    // 3. Калибровка
+    ADC1->CR2 |= ADC_CR2_RSTCAL;
+    while (ADC1->CR2 & ADC_CR2_RSTCAL);
+    ADC1->CR2 |= ADC_CR2_CAL;
+    while (ADC1->CR2 & ADC_CR2_CAL);
+
+    // 4. Настройка канала 0
+    ADC1->CR2 &= ~ADC_CR2_CONT; // Одиночное преобразование
+    ADC1->SQR1 &= ~ADC_SQR1_L;  // Длина последовательности = 1
+    ADC1->SQR3 = 0;             // Канал 0 (PA0)
+
+    // 5. Время выборки
+    ADC1->SMPR2 |= ADC_SMPR2_SMP0;
+
+    // 6. КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: разрешить внешний триггер и выбрать SWSTART
+    ADC1->CR2 |= ADC_CR2_EXTTRIG;             // Сначала разрешить внешний триггер
+    ADC1->CR2 &= ~ADC_CR2_EXTSEL;
+    ADC1->CR2 |= (0x7 << ADC_CR2_EXTSEL_Pos); // Затем выбрать SWSTART (0b111)
+}
+
+uint16_t ADC1_Read_PA0(void)
+{
+    // Запуск преобразования
+    ADC1->CR2 |= ADC_CR2_SWSTART;
+    
+    // Ждём окончания (флаг EOC)
+    while (!(ADC1->SR & ADC_SR_EOC));
+    
+    // Возвращаем результат (12 бит, 0..4095)
+    return ADC1->DR;
+}
+////////////////////////////////////////////////////////////////
 
 /**
   * @brief  This function is executed in case of error occurrence.
